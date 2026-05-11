@@ -1,6 +1,8 @@
 
 import { MatchPattern } from './match-pattern';
 
+export type TimeUnit = 'minutes' | 'hours' | 'days';
+
 export interface Rule {
   url_pattern: string;
   inactive_minutes: number;
@@ -181,10 +183,15 @@ function ParseRuleLine(line: string): Rule | null {
 
 
   // 2. inactive_minutes
-  const min = parseInt((tokens.at(1) ?? ''))
+  const minStr = (tokens.at(1) ?? '').trim()
+  const timeResult = parseTimeWithUnit(minStr)
+  if (!timeResult) {
+    throw Error('bad inactive_minutes, should be a number or value with unit (e.g., 5m, 2h, 1d)')
+  }
+  const min = toMinutes(timeResult.value, timeResult.unit)
   const minRes = v_rule_inactive_minutes(min)
   if (!minRes.ok) {
-    throw Error('bad inactive_minutes, should be a number')
+    throw Error('bad inactive_minutes, should be in valid range')
   }
 
 
@@ -224,4 +231,71 @@ function parseBool(s: string): boolean | undefined {
     return false
   }
   return undefined
+}
+
+// Time unit conversion utilities
+export function toMinutes(value: number, unit: TimeUnit): number {
+  switch (unit) {
+    case 'minutes':
+      return value;
+    case 'hours':
+      return value * 60;
+    case 'days':
+      return value * 24 * 60;
+  }
+}
+
+export function fromMinutes(minutes: number, unit: TimeUnit): number {
+  switch (unit) {
+    case 'minutes':
+      return minutes;
+    case 'hours':
+      return minutes / 60;
+    case 'days':
+      return minutes / (24 * 60);
+  }
+}
+
+export function getBestUnit(minutes: number): TimeUnit {
+  if (minutes % (24 * 60) === 0) return 'days';
+  if (minutes % 60 === 0) return 'hours';
+  return 'minutes';
+}
+
+export function parseTimeWithUnit(input: string): { value: number; unit: TimeUnit } | null {
+  const trimmed = input.trim().toLowerCase();
+
+  // Check for unit suffix
+  if (trimmed.endsWith('m')) {
+    const value = parseInt(trimmed.slice(0, -1));
+    if (!isNaN(value)) return { value, unit: 'minutes' };
+  }
+  if (trimmed.endsWith('h')) {
+    const value = parseInt(trimmed.slice(0, -1));
+    if (!isNaN(value)) return { value, unit: 'hours' };
+  }
+  if (trimmed.endsWith('d')) {
+    const value = parseInt(trimmed.slice(0, -1));
+    if (!isNaN(value)) return { value, unit: 'days' };
+  }
+
+  // Default to minutes if no unit
+  const value = parseInt(trimmed);
+  if (!isNaN(value)) return { value, unit: 'minutes' };
+
+  return null;
+}
+
+export function formatTimeWithUnit(minutes: number): string {
+  const unit = getBestUnit(minutes);
+  const value = fromMinutes(minutes, unit);
+
+  switch (unit) {
+    case 'minutes':
+      return `${value}m`;
+    case 'hours':
+      return `${value}h`;
+    case 'days':
+      return `${value}d`;
+  }
 }
