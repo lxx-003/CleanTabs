@@ -23,7 +23,7 @@ export default function RulesEditor() {
 
 
   const rulesText = useMemo(() => {
-    let text = `// URL Pattern, Inactive Minutes, Action, →Stash, Disabled\n`
+    let text = `// URL Pattern, Inactive (e.g., 30m, 5h, 2d), Action, →Stash, Disabled\n`
     text += rules.map(r => Rule2Text(r)).join('\n')
     if (rules.length < 15) {
       text += NEW_LINES.slice(0, 15 - rules.length)

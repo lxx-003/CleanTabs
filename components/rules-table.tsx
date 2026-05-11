@@ -41,7 +41,7 @@ import {
 } from "@/components/ui/table"
 
 import { DebouncedInput, Input } from "@/components/ui/input"
-import { Action, Actions, Rule, DefaultRules, v_rule_pattern, ValidateRule, ValidateRules, ValidationResult } from "@/lib/rule"
+import { Action, Actions, Rule, DefaultRules, v_rule_pattern, ValidateRule, ValidateRules, ValidationResult, TimeUnit, toMinutes, fromMinutes, getBestUnit } from "@/lib/rule"
 import { Checkbox, SmallCheckbox } from "@/components/ui/checkbox"
 import {
   Plus,
@@ -248,12 +248,17 @@ export default function RulesTable() {
         accessorKey: "inactive_minutes",
         header: "Inactive",
         cell: ({ getValue, row }) => {
-          const initialValue = (getValue() as number).toString()
-          const [value, setValue] = useState(initialValue)
+          const initialMinutes = getValue() as number
+          const initialUnit = getBestUnit(initialMinutes)
+          const [unit, setUnit] = useState<TimeUnit>(initialUnit)
+          const [value, setValue] = useState(fromMinutes(initialMinutes, initialUnit).toString())
           const [valid, setValid] = useState(true)
+
           useEffect(() => {
-            setValue(initialValue)
-          }, [initialValue])
+            const newUnit = getBestUnit(initialMinutes)
+            setUnit(newUnit)
+            setValue(fromMinutes(initialMinutes, newUnit).toString())
+          }, [initialMinutes])
 
           useEffect(() => {
             if (value === "") {
@@ -261,39 +266,75 @@ export default function RulesTable() {
               return
             }
 
-            if (!/^\d+$/.test(value)) {
+            if (!/^\d+(\.\d+)?$/.test(value)) {
               setValid(false)
               return
             }
-            const n = parseInt(value)
+            const n = parseFloat(value)
             if (isNaN(n)) {
               setValid(false)
               return
             }
 
+            const minutes = toMinutes(n, unit)
+            if (minutes < 0 || minutes > 30 * 24 * 60) {
+              setValid(false)
+              return
+            }
+
             setValid(true)
-          }, [value])
+          }, [value, unit])
+
+          const handleBlur = () => {
+            if (valid) {
+              const n = parseFloat(value)
+              const minutes = toMinutes(n, unit)
+              if (minutes !== initialMinutes) {
+                updateData(row.index, { inactive_minutes: minutes })
+              }
+            } else {
+              // Reset to initial value
+              const newUnit = getBestUnit(initialMinutes)
+              setUnit(newUnit)
+              setValue(fromMinutes(initialMinutes, newUnit).toString())
+            }
+          }
+
+          const handleUnitChange = (newUnit: TimeUnit) => {
+            const currentMinutes = toMinutes(parseFloat(value), unit)
+            setUnit(newUnit)
+            const newValue = fromMinutes(currentMinutes, newUnit)
+            // Only show decimals if necessary
+            setValue(newValue % 1 === 0 ? newValue.toString() : newValue.toFixed(2))
+          }
 
           return (
-            <div className="w-12 font-mono text-xs">
+            <div className="flex gap-1 items-center font-mono text-xs">
               <Input
                 value={value}
                 className={cn(
-                  "h-7 text-sm rounded-[4px] py-0 px-2 border-none focus-visible:ring-offset-2 focus-visible:ring-1 focus-visible:ring-zinc-300",
+                  "h-7 w-14 text-sm rounded-[4px] py-0 px-2 border-none focus-visible:ring-offset-2 focus-visible:ring-1 focus-visible:ring-zinc-300",
                   valid ? "" : "focus-visible:ring-red-500"
                 )}
                 onChange={(e) => setValue(e.target.value)}
-                onBlur={() => {
-                  if (value !== initialValue) {
-                    if (valid) {
-                      const n = parseInt(value)
-                      updateData(row.index, { inactive_minutes: n })
-                    } else {
-                      setValue(initialValue)
-                    }
-                  }
-                }}
+                onBlur={handleBlur}
               />
+              <Select
+                value={unit}
+                onValueChange={handleUnitChange}
+              >
+                <SelectTrigger
+                  className="h-7 w-14 px-1 border-none focus:ring-0 focus:ring-offset-0 rounded-[4px] bg-transparent text-xs"
+                  noIcon={true}
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded-[6px]">
+                  <SelectItem value="minutes" className="h-7 text-xs">min</SelectItem>
+                  <SelectItem value="hours" className="h-7 text-xs">hr</SelectItem>
+                  <SelectItem value="days" className="h-7 text-xs">day</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           )
         },
