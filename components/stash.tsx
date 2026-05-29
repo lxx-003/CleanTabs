@@ -189,33 +189,37 @@ export function Stash() {
   const urlColumn = table.getColumn("url")
 
   return (
-    <div className="">
-      <div className="flex items-center justify-between gap-2 w-full mb-2">
-        <DebouncedInput
-          placeholder="搜索暂存"
-          className="h-8 w-64 rounded-[0px] focus-visible:ring-0 focus-visible:ring-offset-0 text-sm font-mono"
-          value={(urlColumn?.getFilterValue() as string) ?? ""}
-          onChange={(value) => {
-            urlColumn?.setFilterValue(value)
-          }}
-        />
-        {anyRowsSelected && (
-          <Button
-            variant="destructive"
-            size="sm"
-            className="h-8"
-            title="删除所选暂存项"
-            onClick={() =>
-              deleteItems(
-                ...table.getSelectedRowModel().flatRows.map((r) => r.index)
-              )
-            }
-          >
-            删除
-          </Button>
-        )}
+    <div className="view-stack">
+      <div className="view-toolbar">
+        <div className="view-toolbar-left">
+          <DebouncedInput
+            placeholder="搜索暂存"
+            className="clean-search w-64 focus-visible:ring-0 focus-visible:ring-offset-0"
+            value={(urlColumn?.getFilterValue() as string) ?? ""}
+            onChange={(value) => {
+              urlColumn?.setFilterValue(value)
+            }}
+          />
+        </div>
+        <div className="view-toolbar-right">
+          {anyRowsSelected && (
+            <Button
+              variant="destructive"
+              size="sm"
+              className="danger-compact-button"
+              title="删除所选暂存项"
+              onClick={() =>
+                deleteItems(
+                  ...table.getSelectedRowModel().flatRows.map((r) => r.index)
+                )
+              }
+            >
+              删除
+            </Button>
+          )}
+        </div>
       </div>
-      <div className="relative overflow-auto border h-[302px] max-h-[302px]">
+      <div className="clean-table-shell">
         <TableDiv className="">
           <TableHeader className="sticky top-0 bg-secondary z-10">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -261,6 +265,7 @@ export function Stash() {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="clean-table-row"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className={cn("py-2 pr-0 mr-0")}>
@@ -276,7 +281,7 @@ export function Stash() {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="empty-state h-24 text-center"
                 >
                   暂存为空
                 </TableCell>

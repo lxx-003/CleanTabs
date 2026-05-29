@@ -50,13 +50,20 @@ export function ThemeProvider({
 
 
   useEffect(() => {
+    if (theme !== "system") {
+      return
+    }
+
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
+
     function listener(event: MediaQueryListEvent) {
-      const newColorScheme = event.matches ? "dark" : "light";
+      const newColorScheme = event.matches ? "dark" : "light"
       setTheme(newColorScheme)
     }
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', listener);
-    return () => window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', listener)
-  }, [])
+
+    mediaQuery.addEventListener("change", listener)
+    return () => mediaQuery.removeEventListener("change", listener)
+  }, [theme])
 
   const value = {
     theme,

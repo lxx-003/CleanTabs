@@ -233,8 +233,8 @@ export default function RulesTable() {
               <Input
                 value={value}
                 className={cn(
-                  "h-7 text-sm rounded-[4px] py-0 px-2 border-none focus-visible:ring-offset-2 focus-visible:ring-1 focus-visible:ring-zinc-300 dark:focus-visible:ring-zinc-600",
-                  valid ? "" : "focus-visible:ring-red-500"
+                  "cell-input py-0 px-2 focus-visible:ring-0 focus-visible:ring-offset-0",
+                  valid ? "" : "border-red-500 focus-visible:border-red-500"
                 )}
                 onChange={(e) => setValue(e.target.value)}
                 onBlur={() => {
@@ -320,15 +320,15 @@ export default function RulesTable() {
               <Input
                 value={value}
                 className={cn(
-                  "h-7 w-14 text-sm rounded-[4px] py-0 px-2 border-none focus-visible:ring-offset-2 focus-visible:ring-1 focus-visible:ring-zinc-300",
-                  valid ? "" : "focus-visible:ring-red-500"
+                  "cell-input w-14 py-0 px-2 focus-visible:ring-0 focus-visible:ring-offset-0",
+                  valid ? "" : "border-red-500 focus-visible:border-red-500"
                 )}
                 onChange={(e) => setValue(e.target.value)}
                 onBlur={handleBlur}
               />
               <Select value={unit} onValueChange={handleUnitChange}>
                 <SelectTrigger
-                  className="h-7 w-14 px-1 border-none focus:ring-0 focus:ring-offset-0 rounded-[4px] bg-transparent text-xs"
+                  className="unit-select-trigger w-14 px-1 border-none focus:ring-0 focus:ring-offset-0"
                   noIcon={true}
                 >
                   <SelectValue />
@@ -368,7 +368,7 @@ export default function RulesTable() {
               }}
             >
               <SelectTrigger
-                className="h-7 w-[74px] justify-start relative -left-2 px-2 border-none focus:ring-0 focus:ring-offset-0 rounded-[4px] bg-transparent"
+                className="action-select-trigger w-[74px] justify-start relative -left-2 px-2 border-none focus:ring-0 focus:ring-offset-0"
                 noIcon={true}
               >
                 <SelectValue placeholder="" />
@@ -376,9 +376,9 @@ export default function RulesTable() {
               <SelectContent className="rounded-[6px]">
                 {Object.values(Actions).map((action) => {
                   const className = {
-                    nop: "bg-gray-100 text-gray-700",
-                    discard: "bg-green-100 text-green-700",
-                    close: "bg-blue-100 text-blue-700",
+                    nop: "action-badge-nop",
+                    discard: "action-badge-discard",
+                    close: "action-badge-close",
                   }[action.action]
 
                   return (
@@ -389,7 +389,7 @@ export default function RulesTable() {
                     >
                       <div
                         className={cn(
-                          "flex justify-center items-center text-xs py-[2px] px-2 rounded-[3px] font-mono",
+                          "action-badge",
                           className
                         )}
                       >
@@ -419,7 +419,7 @@ export default function RulesTable() {
           }
           return (
             <Switch
-              className="w-8 h-4"
+              className="clean-switch"
               checked={value}
               onCheckedChange={onChange}
             />
@@ -443,7 +443,7 @@ export default function RulesTable() {
 
           return (
             <Switch
-              className="w-8 h-4"
+              className="clean-switch"
               checked={value}
               onCheckedChange={onChange}
             />
@@ -462,7 +462,7 @@ export default function RulesTable() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 rounded-[6px]"
+                    className="toolbar-icon-button"
                     title="更多操作"
                   >
                     <Ellipsis />
@@ -553,116 +553,120 @@ export default function RulesTable() {
   }
 
   return (
-    <div className="w-full flex flex-col min-h-64">
-      <div className="flex items-center justify-end gap-2 w-full mb-2 relative left-28 pr-28">
-        {dataDirty && (
-          <div className="flex items-baseline gap-2">
-            <span className="pb-0 text-red-500">
-              {vResult.ok ? "规则已修改" : vResult.reason}
-            </span>
-            <Button
-              size="sm"
-              className="h-8"
-              title="保存规则"
-              onClick={saveData}
-            >
-              保存
-            </Button>
-          </div>
-        )}
-        <DebouncedInput
-          placeholder="搜索规则"
-          className="h-8 w-56 rounded-[0px] focus-visible:ring-0 focus-visible:ring-offset-0 text-sm font-mono"
-          value={(regexColumn?.getFilterValue() as string) ?? ""}
-          onChange={(value) => {
-            regexColumn?.setFilterValue(value)
-          }}
-        />
-        <div className="flex items-center gap-2">
-          <DropdownMenu
-            onOpenChange={(open) => {
-              if (open) {
-                refreshTabList()
-              }
+    <div className="view-stack">
+      <div className="view-toolbar">
+        <div className="view-toolbar-left">
+          {dataDirty && (
+            <div className="dirty-banner">
+              <span>{vResult.ok ? "规则已修改" : vResult.reason}</span>
+              <Button
+                size="sm"
+                className="primary-compact-button"
+                title="保存规则"
+                onClick={saveData}
+              >
+                保存
+              </Button>
+            </div>
+          )}
+        </div>
+        <div className="view-toolbar-right">
+          <DebouncedInput
+            placeholder="搜索规则"
+            className="clean-search w-56 focus-visible:ring-0 focus-visible:ring-offset-0"
+            value={(regexColumn?.getFilterValue() as string) ?? ""}
+            onChange={(value) => {
+              regexColumn?.setFilterValue(value)
             }}
-          >
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8 "
-                title="新建规则"
-                onClick={refreshTabList}
-              >
-                <Plus />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="bottom" align="end">
-              <DropdownMenuItem
-                onClick={() => {
-                  newRule("")
-                }}
-              >
-                新建空白规则
-              </DropdownMenuItem>
+          />
+          <div className="toolbar-actions">
+            <DropdownMenu
+              onOpenChange={(open) => {
+                if (open) {
+                  refreshTabList()
+                }
+              }}
+            >
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="toolbar-icon-button"
+                  title="新建规则"
+                  onClick={refreshTabList}
+                >
+                  <Plus />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="bottom" align="end">
+                <DropdownMenuItem
+                  onClick={() => {
+                    newRule("")
+                  }}
+                >
+                  新建空白规则
+                </DropdownMenuItem>
 
-              {tabList.length > 0 && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuLabel>从标签页创建</DropdownMenuLabel>
-                  <div className="max-h-[200px] overflow-y-scroll">
-                    {tabList.map((t) => {
-                      const url = URL.parse(t.url)
-                      return (
-                        <DropdownMenuItem
-                          key={t.url}
-                          onClick={() => {
-                            newRule(t.url)
-                          }}
-                        >
-                          <img src={t.favicon_url} className="h-4 w-4" />
-                          <span className="max-w-48 overflow-hidden text-nowrap text-ellipsis">
-                            {t.title}
-                          </span>
-                          <span className="text-gray-500">{url?.host}</span>
-                        </DropdownMenuItem>
-                      )
-                    })}
-                  </div>
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                {tabList.length > 0 && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuLabel>从标签页创建</DropdownMenuLabel>
+                    <div className="max-h-[200px] overflow-y-scroll">
+                      {tabList.map((t) => {
+                        const url = URL.parse(t.url)
+                        return (
+                          <DropdownMenuItem
+                            key={t.url}
+                            onClick={() => {
+                              newRule(t.url)
+                            }}
+                          >
+                            <img src={t.favicon_url} className="h-4 w-4" />
+                            <span className="max-w-48 overflow-hidden text-nowrap text-ellipsis">
+                              {t.title}
+                            </span>
+                            <span className="text-gray-500">{url?.host}</span>
+                          </DropdownMenuItem>
+                        )
+                      })}
+                    </div>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8 "
-                title="批量操作"
-              >
-                <Ellipsis />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="bottom" align="end">
-              <DropdownMenuItem
-                disabled={batchOperationsDisabled}
-                onClick={() => {
-                  deleteRules(
-                    ...table.getSelectedRowModel().flatRows.map((r) => r.index)
-                  )
-                  setRowSelection({})
-                }}
-                className="focus:text-destructive focus:bg-red-100 dark:focus:bg-red-600 dark:text-white"
-              >
-                删除
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="toolbar-icon-button"
+                  title="批量操作"
+                >
+                  <Ellipsis />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="bottom" align="end">
+                <DropdownMenuItem
+                  disabled={batchOperationsDisabled}
+                  onClick={() => {
+                    deleteRules(
+                      ...table
+                        .getSelectedRowModel()
+                        .flatRows.map((r) => r.index)
+                    )
+                    setRowSelection({})
+                  }}
+                  className="focus:text-destructive focus:bg-red-100 dark:focus:bg-red-600 dark:text-white"
+                >
+                  删除
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
-      <div className="relative overflow-auto border h-[302px] max-h-[302px]">
+      <div className="clean-table-shell rules-table-shell">
         <TableDiv className="">
           <TableHeader className="sticky top-0 bg-secondary z-10">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -696,11 +700,10 @@ export default function RulesTable() {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className={
-                    row.original.dirty
-                      ? "bg-yellow-50 hover:bg-yellow-50 dark:bg-stone-800 dark:hover:bg-stone-800"
-                      : ""
-                  }
+                  className={cn(
+                    "clean-table-row",
+                    row.original.dirty ? "rule-row-dirty" : ""
+                  )}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
@@ -724,7 +727,7 @@ export default function RulesTable() {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="empty-state h-24 text-center"
                 >
                   暂无规则
                 </TableCell>

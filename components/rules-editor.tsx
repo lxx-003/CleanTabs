@@ -38,8 +38,8 @@ export default function RulesEditor() {
 
   const { setContainer, view, state } = useCodeMirror({
     container: editor.current,
-    minHeight: "300px",
-    maxHeight: "300px",
+    minHeight: "258px",
+    maxHeight: "258px",
     value: rulesText,
     extensions: [CodeMirrorExtStyle, csv()],
     theme: githubLight,
@@ -90,14 +90,18 @@ export default function RulesEditor() {
   }
 
   return (
-    <div className="flex flex-col">
-      <div className="flex justify-end items-baseline gap-2">
-        <span className="text-red-500">{message}</span>
-        <Button size="sm" className="h-8" onClick={Parse}>
-          保存
-        </Button>
+    <div className="view-stack">
+      <div className="view-toolbar">
+        <div className="view-toolbar-left">
+          {message && <span className="text-red-500">{message}</span>}
+        </div>
+        <div className="view-toolbar-right">
+          <Button size="sm" className="primary-compact-button" onClick={Parse}>
+            保存
+          </Button>
+        </div>
       </div>
-      <div ref={editor} className="mt-2 h-[302px] border"></div>
+      <div ref={editor} className="code-editor-frame rules-editor-frame"></div>
     </div>
   )
 }

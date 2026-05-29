@@ -89,7 +89,7 @@ export function Provider({ children }: { children: ReactNode }) {
     flags,
     setFlags,
   }}>
-    <ThemeProvider defaultTheme="system">
+    <ThemeProvider defaultTheme="light">
       {children}
     </ThemeProvider>
   </AppStateContext.Provider>

@@ -23,27 +23,37 @@ function App() {
   const [running, setRunning] = useState(false)
 
   return (
-    <div className="min-w-[800px] min-h-[400px] w-full h-full flex ">
-      {/* <img src={logo} /> */}
-      <Tabs defaultValue={TabNames[0]} className="w-full h-full">
-        <TabsList className="w-full flex justify-between bg-white dark:bg-neutral-900/40 text-neutral-700 dark:text-neutral-100 border-b border-neutral-300 dark:border-neutral-700 shadow-sm">
-          <div className="flex gap-4 items-center px-3 ">
-            <div className="h-10 flex items-center gap-2">
-              <img src={logo} className="w-5 h-5 relative bottom-[1px]" />
-              <span className="tracking-wide font-medium text-sm">
-                CleanTabs
+    <div className="clean-tabs-shell min-w-[800px] min-h-[430px] w-full h-full">
+      <Tabs defaultValue={TabNames[0]} className="clean-tabs-surface w-full h-full">
+        <TabsList className="clean-header w-full">
+          <div className="clean-header-left">
+            <div className="clean-brand" title="CleanTabs">
+              <span className="clean-logo-frame">
+                <img src={logo} className="h-5 w-5" />
+              </span>
+              <span className="clean-brand-text">CleanTabs</span>
+            </div>
+            <div className="clean-status-cluster">
+              <Switch
+                className="clean-switch"
+                checked={enabled}
+                onCheckedChange={setEnabled}
+                title={"全局开关：" + (enabled ? "开启" : "关闭")}
+              />
+              <span
+                className={
+                  enabled
+                    ? "clean-status-pill clean-status-pill-on"
+                    : "clean-status-pill clean-status-pill-off"
+                }
+              >
+                {enabled ? "运行中" : "已暂停"}
               </span>
             </div>
-            <Switch
-              className="w-8 h-4 data-[state=checked]:bg-green-500  dark:data-[state=checked]:bg-green-600 data-[state=unchecked]:dark:bg-zinc-600"
-              checked={enabled}
-              onCheckedChange={setEnabled}
-              title={"全局开关：" + (enabled ? "开启" : "关闭")}
-            />
             <Button
               variant="ghost"
               size="icon"
-              className="w-4 h-4"
+              className="clean-icon-button"
               title="立即执行规则"
               onClick={async () => {
                 if (running) return
@@ -58,35 +68,35 @@ function App() {
             </Button>
           </div>
 
-          <div className="rounded-none shadow-none px-2 flex items-center">
+          <div className="clean-nav">
             {TabNames.map((t) => (
               <TabsTrigger
                 key={t}
                 value={t}
-                className="h-6 mx-4 px-0  data-[state=active]:shadow-none border-b-[2px] border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
+                className="clean-nav-trigger"
               >
                 {t}
               </TabsTrigger>
             ))}
             <TabsTrigger
               value="Settings"
-              className="h-7 ml-12 px-2 py-0 rounded-full data-[state=active]:shadow-none data-[state=active]:bg-transparent data-[state=active]:fill-primary"
+              className="clean-settings-trigger"
               title="设置"
             >
               <ChromeSettingsIcon className="w-4 h-4" />
             </TabsTrigger>
           </div>
         </TabsList>
-        <TabsContent value="标签页" className="p-2 pt-0">
+        <TabsContent value="标签页" className="clean-panel">
           <TabsComp />
         </TabsContent>
-        <TabsContent value="规则" className="p-2 pt-0">
+        <TabsContent value="规则" className="clean-panel">
           <Rules />
         </TabsContent>
-        <TabsContent value="暂存箱" className="p-2 pt-0">
+        <TabsContent value="暂存箱" className="clean-panel">
           <Stash />
         </TabsContent>
-        <TabsContent value="Settings" className="">
+        <TabsContent value="Settings" className="clean-panel">
           <Settings />
         </TabsContent>
       </Tabs>

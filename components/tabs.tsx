@@ -51,8 +51,8 @@ const GroupColorName: Record<chrome.tabGroups.ColorEnum, string> = {
   orange: "橙色",
 }
 
-const TabTileClassName = "h-[45px] rounded-[6px] border border-transparent"
-const GroupLabelClassName = "h-5 rounded-[6px]"
+const TabTileClassName = "tab-tile"
+const GroupLabelClassName = "group-label"
 
 type BrowserTabGroup = chrome.tabGroups.TabGroup
 type BrowserTab = TTabs.Tab & { groupId?: number }
@@ -264,26 +264,24 @@ export function Tabs() {
   }, [])
 
   return (
-    <div className="flex flex-col gap-2 p-0">
+    <div className="tab-board">
       {windows.map((w, i) => {
         return (
           <div key={w.window.id}>
-            <div className="rounded-xl border border-dashed border-neutral-200/90 bg-neutral-50/70 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900/40">
-              <div className="mb-2 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-medium uppercase tracking-[0.12em] text-neutral-500 dark:text-neutral-400">
+            <div className="window-card">
+              <div className="window-card-header">
+                <div className="window-title">
+                  <span>
                     {i === 0 ? "当前窗口" : `窗口 ${i + 1}`}
                   </span>
-                  {i === 0 && (
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary"></span>
-                  )}
+                  {i === 0 && <span className="current-window-dot"></span>}
                 </div>
-                <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                <span className="window-count">
                   {w.tabs.length} 个标签页
                 </span>
               </div>
 
-              <div className="-mt-1.5 leading-none">
+              <div className="tab-lane">
                 {w.sections.map((section) => {
                   if (!section.isGrouped) {
                     return (
@@ -479,10 +477,8 @@ function TabItem({
             className={cn(
               "flex flex-col items-center justify-center gap-1 cursor-pointer px-1 py-1 transition-colors duration-150",
               TabTileClassName,
-              tab.active
-                ? "bg-primary/20 hover:bg-primary/25"
-                : "hover:bg-neutral-200 dark:hover:bg-neutral-800/70",
-              flag?.always_keep ? "border-primary/80" : ""
+              tab.active ? "tab-tile-active" : "",
+              flag?.always_keep ? "tab-tile-keep" : ""
             )}
             onClick={() => {
               browser.tabs.update(tab.id!, { active: true })
@@ -491,7 +487,7 @@ function TabItem({
           >
             <Favicon
               tab={tab}
-              className="h-6 w-6 hover:scale-[110%] duration-200"
+              className="tab-favicon"
             />
             <TabStatusIndicator discarded={tab.discarded} />
           </div>
@@ -501,7 +497,7 @@ function TabItem({
           align="start"
           sideOffset={4}
           arrowPadding={0}
-          className="w-96 px-3 py-2"
+          className="tab-popover px-3 py-2"
           onMouseEnter={() => {
             clearCloseTimer()
             setPopoverHovering(true)
@@ -512,11 +508,11 @@ function TabItem({
             scheduleCloseCheck()
           }}
         >
-          <PopoverPrimitive.Arrow className="fill-neutral-400" />
-          <p className="font-semibold text-[13px] leading-relaxed">
+          <PopoverPrimitive.Arrow className="fill-white dark:fill-[#181d1c]" />
+          <p className="tab-popover-title">
             {tab.title}
           </p>
-          <p className="leading-relaxed text-neutral-600">
+          <p className="tab-popover-url leading-relaxed">
             {ShortURL(tab.url)}
           </p>
           {section.isGrouped && (
@@ -544,8 +540,8 @@ function TabItem({
               )}
             </div>
           )}
-          <div className="border-t my-2"></div>
-          <div className="font-mono flex justify-between">
+          <div className="border-t border-emerald-950/10 my-2 dark:border-white/10"></div>
+          <div className="tab-popover-meta flex justify-between">
             <div className="flex items-center gap-1">
               <span>状态：{tab.discarded ? "已休眠" : "正常"}</span>
               <TabStatusIndicator discarded={tab.discarded} />
@@ -564,7 +560,7 @@ function TabItem({
                 }}
                 size="icon"
                 variant="ghost"
-                className="rounded-[6px] w-8 h-8 outline-none focus-visible:ring-offset-0 focus-visible:ring-0 bg-accent"
+                className="tab-action-button outline-none focus-visible:ring-offset-0 focus-visible:ring-0"
               >
                 <PinIcon
                   strokeWidth={flag?.always_keep ? 2 : 1}
@@ -590,13 +586,13 @@ function TabItem({
                 }}
                 size="icon"
                 variant="ghost"
-                className="rounded-[6px] w-8 h-8 outline-none focus-visible:ring-offset-0 focus-visible:ring-0 bg-accent"
+                className="tab-action-button outline-none focus-visible:ring-offset-0 focus-visible:ring-0"
               >
                 <Moon className="w-4 h-4" />
               </Button>
             </div>
             {matchedRule && (
-              <div className="flex justify-end font-mono">
+              <div className="tab-popover-meta flex justify-end text-right">
                 <span>
                   第 {(matchedRule.index ?? 0) + 1} 条规则：闲置{" "}
                   {matchedRule.inactive_minutes} 分钟后
@@ -664,11 +660,9 @@ function Favicon({
 function TabStatusIndicator({ discarded }: { discarded?: boolean }) {
   let color = "bg-green-500"
   if (discarded) {
-    color = "bg-neutral-400"
+    color = "tab-status-sleep"
+  } else {
+    color = "tab-status-awake"
   }
-  return (
-    <span
-      className={`block h-[5px] w-[5px] shrink-0 ${color} rounded-full`}
-    ></span>
-  )
+  return <span className={`tab-status-dot ${color}`}></span>
 }
