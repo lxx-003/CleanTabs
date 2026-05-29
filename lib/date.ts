@@ -9,7 +9,7 @@ const units: { [key: string]: number } = {
   second: 1000,
 }
 
-const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto', style: 'narrow' })
+const rtf = new Intl.RelativeTimeFormat('zh-CN', { numeric: 'auto', style: 'narrow' })
 
 export const getRelativeTime = (d1: Date, d2: Date = new Date()) => {
   const elapsed = d1.getTime() - d2.getTime()

@@ -10,7 +10,7 @@ import {
   useRef,
   useState,
 } from "react"
-import { AppStateContext } from "./providers"
+import { AppStateContext } from "./Providers"
 import { ParseRulesText, Rule2Text } from "@/lib/rule"
 import { Button } from "@/components/ui/button"
 import { useTheme } from "./theme-provider"
@@ -28,7 +28,7 @@ export default function RulesEditor() {
   const { theme } = useTheme()
 
   const rulesText = useMemo(() => {
-    let text = `// URL Pattern, Inactive (e.g., 30m, 5h, 2d), Action, →Stash, Disabled\n`
+    let text = `// URL 匹配模式, 闲置时长 (如 30m, 5h, 2d), 动作 (nop/discard/close), →暂存, 禁用\n`
     text += rules.map((r) => Rule2Text(r)).join("\n")
     if (rules.length < 15) {
       text += NEW_LINES.slice(0, 15 - rules.length)
@@ -85,7 +85,7 @@ export default function RulesEditor() {
       setRules(rules, { toStorage: true })
     } catch (error) {
       console.log(error)
-      setMessage(`${error}`)
+      setMessage(error instanceof Error ? error.message : `${error}`)
     }
   }
 
@@ -94,7 +94,7 @@ export default function RulesEditor() {
       <div className="flex justify-end items-baseline gap-2">
         <span className="text-red-500">{message}</span>
         <Button size="sm" className="h-8" onClick={Parse}>
-          Save
+          保存
         </Button>
       </div>
       <div ref={editor} className="mt-2 h-[302px] border"></div>

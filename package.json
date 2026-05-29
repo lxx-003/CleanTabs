@@ -1,6 +1,6 @@
 {
   "name": "CleanTabs",
-  "description": "Auto discard (sleep) / close tabs based on rules.",
+  "description": "按规则自动休眠或关闭标签页。",
   "private": true,
   "version": "1.0.7",
   "type": "module",

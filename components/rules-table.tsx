@@ -60,7 +60,7 @@ import { cn } from "@/lib/utils"
 
 import { storage } from "wxt/storage"
 import { STORAGE_KEY_RULES } from "@/lib/storage"
-import { AppStateContext } from "./providers"
+import { AppStateContext } from "./Providers"
 import { browser } from "wxt/browser"
 
 interface TabListItem {
@@ -179,7 +179,7 @@ export default function RulesTable() {
             onCheckedChange={(value) =>
               table.toggleAllPageRowsSelected(!!value)
             }
-            aria-label="Select all"
+            aria-label="全选"
             className="rounded-[5px]"
           />
         ),
@@ -187,7 +187,7 @@ export default function RulesTable() {
           <SmallCheckbox
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label="Select row"
+            aria-label="选择此行"
             className="rounded-[5px]"
           />
         ),
@@ -196,14 +196,14 @@ export default function RulesTable() {
       },
       {
         id: "index",
-        header: "No.",
+        header: "序号",
         cell: ({ row }) => {
           return row.index + 1
         },
       },
       {
         accessorKey: "url_pattern",
-        header: "URL Pattern",
+        header: "URL 匹配模式",
         cell: ({ getValue, row }) => {
           const initialValue: string = getValue() as string
           const [value, setValue] = useState(initialValue)
@@ -249,7 +249,7 @@ export default function RulesTable() {
       },
       {
         accessorKey: "inactive_minutes",
-        header: "Inactive",
+        header: "闲置时长",
         cell: ({ getValue, row }) => {
           const initialMinutes = getValue() as number
           const initialUnit = getBestUnit(initialMinutes)
@@ -335,13 +335,13 @@ export default function RulesTable() {
                 </SelectTrigger>
                 <SelectContent className="rounded-[6px]">
                   <SelectItem value="minutes" className="h-7 text-xs">
-                    min
+                    分钟
                   </SelectItem>
                   <SelectItem value="hours" className="h-7 text-xs">
-                    hr
+                    小时
                   </SelectItem>
                   <SelectItem value="days" className="h-7 text-xs">
-                    day
+                    天
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -351,7 +351,7 @@ export default function RulesTable() {
       },
       {
         accessorKey: "action",
-        header: "Action",
+        header: "动作",
         cell: ({ getValue, row }) => {
           const initialValue = getValue() as Action
           const [value, setValue] = useState<Action>(initialValue)
@@ -405,7 +405,7 @@ export default function RulesTable() {
       },
       {
         accessorKey: "to_stash",
-        header: "→Stash",
+        header: "→暂存",
         cell: ({ getValue, row: { index }, column: { id }, table }) => {
           const initialValue: boolean = getValue() ? true : false
           const [value, setValue] = useState<boolean>(initialValue)
@@ -428,7 +428,7 @@ export default function RulesTable() {
       },
       {
         accessorKey: "disabled",
-        header: "Disabled",
+        header: "禁用",
         cell: ({ getValue, row: { index }, column: { id }, table }) => {
           const initialValue: boolean = getValue() as boolean
           const [value, setValue] = useState(initialValue)
@@ -463,7 +463,7 @@ export default function RulesTable() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 rounded-[6px]"
-                    title="Batch Operations"
+                    title="更多操作"
                   >
                     <Ellipsis />
                   </Button>
@@ -474,7 +474,7 @@ export default function RulesTable() {
                       duplicateRule(row.index)
                     }}
                   >
-                    Duplicate
+                    复制
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => {
@@ -482,7 +482,7 @@ export default function RulesTable() {
                     }}
                     className="focus:text-destructive focus:bg-red-100 dark:focus:bg-red-600 dark:text-white"
                   >
-                    Delete
+                    删除
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
@@ -491,7 +491,7 @@ export default function RulesTable() {
                       moveUp(row.index)
                     }}
                   >
-                    Move up
+                    上移
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     disabled={row.index >= data.length - 1}
@@ -499,7 +499,7 @@ export default function RulesTable() {
                       moveDown(row.index)
                     }}
                   >
-                    Move down
+                    下移
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -558,20 +558,20 @@ export default function RulesTable() {
         {dataDirty && (
           <div className="flex items-baseline gap-2">
             <span className="pb-0 text-red-500">
-              {vResult.ok ? "Rules changed" : vResult.reason}
+              {vResult.ok ? "规则已修改" : vResult.reason}
             </span>
             <Button
               size="sm"
               className="h-8"
-              title="Save Ruels"
+              title="保存规则"
               onClick={saveData}
             >
-              Save
+              保存
             </Button>
           </div>
         )}
         <DebouncedInput
-          placeholder="Search Rules"
+          placeholder="搜索规则"
           className="h-8 w-56 rounded-[0px] focus-visible:ring-0 focus-visible:ring-offset-0 text-sm font-mono"
           value={(regexColumn?.getFilterValue() as string) ?? ""}
           onChange={(value) => {
@@ -591,7 +591,7 @@ export default function RulesTable() {
                 variant="outline"
                 size="icon"
                 className="h-8 w-8 "
-                title="New Rule"
+                title="新建规则"
                 onClick={refreshTabList}
               >
                 <Plus />
@@ -603,13 +603,13 @@ export default function RulesTable() {
                   newRule("")
                 }}
               >
-                New blank rule
+                新建空白规则
               </DropdownMenuItem>
 
               {tabList.length > 0 && (
                 <>
                   <DropdownMenuSeparator />
-                  <DropdownMenuLabel>from tabs</DropdownMenuLabel>
+                  <DropdownMenuLabel>从标签页创建</DropdownMenuLabel>
                   <div className="max-h-[200px] overflow-y-scroll">
                     {tabList.map((t) => {
                       const url = URL.parse(t.url)
@@ -640,7 +640,7 @@ export default function RulesTable() {
                 variant="outline"
                 size="icon"
                 className="h-8 w-8 "
-                title="Batch Operations"
+                title="批量操作"
               >
                 <Ellipsis />
               </Button>
@@ -656,7 +656,7 @@ export default function RulesTable() {
                 }}
                 className="focus:text-destructive focus:bg-red-100 dark:focus:bg-red-600 dark:text-white"
               >
-                Delete
+                删除
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -726,7 +726,7 @@ export default function RulesTable() {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No rules
+                  暂无规则
                 </TableCell>
               </TableRow>
             )}

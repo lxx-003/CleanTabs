@@ -6,6 +6,8 @@ export default defineConfig({
   extensionApi: "chrome",
   modules: ["@wxt-dev/module-react"],
   manifest: {
+    name: "CleanTabs",
+    description: "按规则自动休眠或关闭标签页。",
     permissions: ["storage", "tabs", "alarms", "tabGroups"],
     content_security_policy: {
       extension_pages:
@@ -23,7 +25,7 @@ export default defineConfig({
           default: "Alt+T",
           mac: "MacCtrl+T",
         },
-        description: "Show the popup",
+        description: "打开弹出窗口",
       },
     },
   },

@@ -1,5 +1,5 @@
 import { useContext, useState } from "react"
-import { RefreshCw, SettingsIcon } from "lucide-react"
+import { RefreshCw } from "lucide-react"
 
 import { sendMessage } from "webext-bridge/popup"
 
@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Stash } from "@/components/stash"
 import Rules from "@/components/Rules"
 import { Switch } from "@/components/ui/switch"
-import { AppStateContext } from "@/components/providers"
+import { AppStateContext } from "@/components/Providers"
 
 import logo from "/logo.png"
 import { Settings } from "@/components/settings"
@@ -15,7 +15,7 @@ import { Tabs as TabsComp } from "@/components/tabs"
 import { Button } from "@/components/ui/button"
 import { ChromeSettingsIcon } from "@/components/icons"
 
-const TabNames = ["Tabs", "Rules", "Stash"]
+const TabNames = ["标签页", "规则", "暂存箱"]
 
 function App() {
   const { enabled, setEnabled } = useContext(AppStateContext)
@@ -38,13 +38,13 @@ function App() {
               className="w-8 h-4 data-[state=checked]:bg-green-500  dark:data-[state=checked]:bg-green-600 data-[state=unchecked]:dark:bg-zinc-600"
               checked={enabled}
               onCheckedChange={setEnabled}
-              title={"Global Switch: " + (enabled ? "ON" : "OFF")}
+              title={"全局开关：" + (enabled ? "开启" : "关闭")}
             />
             <Button
               variant="ghost"
               size="icon"
               className="w-4 h-4"
-              title="Run rules immediately"
+              title="立即执行规则"
               onClick={async () => {
                 if (running) return
 
@@ -71,18 +71,19 @@ function App() {
             <TabsTrigger
               value="Settings"
               className="h-7 ml-12 px-2 py-0 rounded-full data-[state=active]:shadow-none data-[state=active]:bg-transparent data-[state=active]:fill-primary"
+              title="设置"
             >
               <ChromeSettingsIcon className="w-4 h-4" />
             </TabsTrigger>
           </div>
         </TabsList>
-        <TabsContent value="Tabs" className="p-2 pt-0">
+        <TabsContent value="标签页" className="p-2 pt-0">
           <TabsComp />
         </TabsContent>
-        <TabsContent value="Rules" className="p-2 pt-0">
+        <TabsContent value="规则" className="p-2 pt-0">
           <Rules />
         </TabsContent>
-        <TabsContent value="Stash" className="p-2 pt-0">
+        <TabsContent value="暂存箱" className="p-2 pt-0">
           <Stash />
         </TabsContent>
         <TabsContent value="Settings" className="">

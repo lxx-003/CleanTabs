@@ -20,8 +20,8 @@ import {
   ChromeIcon,
   ChromeSettingsIcon,
 } from "./icons"
-import { AppStateContext } from "./providers"
-import { FindMatchedRule, Rule } from "@/lib/rule"
+import { AppStateContext } from "./Providers"
+import { Actions, FindMatchedRule, Rule } from "@/lib/rule"
 import { ShortURL, Flag } from "@/lib/tab"
 import { Button } from "./ui/button"
 import { Moon, PinIcon } from "lucide-react"
@@ -37,6 +37,18 @@ const GroupColorValue: Record<chrome.tabGroups.ColorEnum, string> = {
   purple: "#a855f7",
   cyan: "#06b6d4",
   orange: "#f97316",
+}
+
+const GroupColorName: Record<chrome.tabGroups.ColorEnum, string> = {
+  grey: "灰色",
+  blue: "蓝色",
+  red: "红色",
+  yellow: "黄色",
+  green: "绿色",
+  pink: "粉色",
+  purple: "紫色",
+  cyan: "青色",
+  orange: "橙色",
 }
 
 const TabTileClassName = "h-[45px] rounded-[6px] border border-transparent"
@@ -70,14 +82,14 @@ function getGroupTitle(group?: BrowserTabGroup, groupId?: number) {
   }
 
   if (group?.color) {
-    return `${group.color[0].toUpperCase()}${group.color.slice(1)} group`
+    return `${GroupColorName[group.color]}标签组`
   }
 
   if (groupId !== undefined) {
-    return `Group ${groupId}`
+    return `标签组 ${groupId}`
   }
 
-  return "Ungrouped"
+  return "未分组"
 }
 
 function getGroupColor(color?: chrome.tabGroups.ColorEnum) {
@@ -153,7 +165,7 @@ function buildTabSections(
         key: grouped
           ? `group-${groupId}-${sections.length}`
           : `ungrouped-${sections.length}`,
-        title: grouped ? getGroupTitle(group, groupId) : "Ungrouped",
+        title: grouped ? getGroupTitle(group, groupId) : "未分组",
         tabs: [tab],
         isGrouped: grouped,
         groupId,
@@ -260,14 +272,14 @@ export function Tabs() {
               <div className="mb-2 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-2">
                   <span className="text-[11px] font-medium uppercase tracking-[0.12em] text-neutral-500 dark:text-neutral-400">
-                    {i === 0 ? "Current window" : `Window ${i + 1}`}
+                    {i === 0 ? "当前窗口" : `窗口 ${i + 1}`}
                   </span>
                   {i === 0 && (
                     <span className="h-1.5 w-1.5 rounded-full bg-primary"></span>
                   )}
                 </div>
                 <span className="text-xs text-neutral-500 dark:text-neutral-400">
-                  {w.tabs.length} tabs
+                  {w.tabs.length} 个标签页
                 </span>
               </div>
 
@@ -360,7 +372,7 @@ function GroupLabelItem({
         backgroundColor: groupColor,
         color: getGroupLabelTextColor(section.group?.color),
       }}
-      title={`${section.title} (${section.tabs.length} tabs)`}
+      title={`${section.title}（${section.tabs.length} 个标签页）`}
     >
       <span className="truncate">{section.title}</span>
       <span className="shrink-0 opacity-80">{section.tabs.length}</span>
@@ -522,12 +534,12 @@ function TabItem({
                 )}
               >
                 {settings.CloseTabInGroup
-                  ? "Grouped tab"
-                  : "Protected from auto-close"}
+                  ? "已分组标签页"
+                  : "不会自动关闭"}
               </span>
               {section.group?.collapsed && (
                 <span className="rounded-full border border-neutral-200 bg-neutral-50 px-2 py-0.5 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300">
-                  Collapsed
+                  已折叠
                 </span>
               )}
             </div>
@@ -535,15 +547,15 @@ function TabItem({
           <div className="border-t my-2"></div>
           <div className="font-mono flex justify-between">
             <div className="flex items-center gap-1">
-              <span>status: {tab.discarded ? "discarded" : "normal"}</span>
+              <span>状态：{tab.discarded ? "已休眠" : "正常"}</span>
               <TabStatusIndicator discarded={tab.discarded} />
             </div>
-            <span>last access: {lastAccess}</span>
+            <span>上次访问：{lastAccess ?? "未知"}</span>
           </div>
           <div className="mt-2 flex justify-between items-center">
             <div className="flex items-center gap-1">
               <Button
-                title="Always keep this tab"
+                title="始终保留此标签页"
                 onClick={async () => {
                   if (tab.id) {
                     const keep = !!!flag?.always_keep
@@ -562,10 +574,10 @@ function TabItem({
               <Button
                 title={
                   tab.active
-                    ? "Can't discard the active tab"
+                    ? "无法休眠当前活动标签页"
                     : tab.discarded
-                      ? "Tab is already discarded"
-                      : "Discard this tab now"
+                      ? "此标签页已休眠"
+                      : "立即休眠此标签页"
                 }
                 disabled={!tab.id || tab.active || tab.discarded}
                 onClick={async () => {
@@ -586,8 +598,9 @@ function TabItem({
             {matchedRule && (
               <div className="flex justify-end font-mono">
                 <span>
-                  No.{matchedRule.index}: inactive{" "}
-                  {matchedRule.inactive_minutes} minutes to {matchedRule.action}
+                  第 {(matchedRule.index ?? 0) + 1} 条规则：闲置{" "}
+                  {matchedRule.inactive_minutes} 分钟后
+                  {Actions[matchedRule.action].display}
                 </span>
               </div>
             )}

@@ -1,5 +1,5 @@
 import { useContext } from "react"
-import { AppStateContext } from "./providers"
+import { AppStateContext } from "./Providers"
 import { Switch } from "./ui/switch"
 import { Label } from "./ui/label"
 import logo from "/logo.png"
@@ -12,7 +12,7 @@ export function Settings() {
   return (
     <div className="flex justify-between px-4 py-2">
       <div>
-        <h1 className="font-semibold text-base mb-4">Settings</h1>
+        <h1 className="font-semibold text-base mb-4">设置</h1>
         <div className="px-1 flex flex-col gap-4">
           <div className="flex items-center gap-2">
             <Switch
@@ -29,7 +29,7 @@ export function Settings() {
                 )
               }}
             />
-            <Label htmlFor="ClosePinTab">Pinned tabs can be closed</Label>
+            <Label htmlFor="ClosePinTab">允许关闭固定标签页</Label>
           </div>
 
           <div className="flex items-center gap-2">
@@ -47,7 +47,7 @@ export function Settings() {
                 )
               }}
             />
-            <Label htmlFor="CloseTabInGroup">Tabs in group can be closed</Label>
+            <Label htmlFor="CloseTabInGroup">允许关闭标签组内的标签页</Label>
           </div>
         </div>
       </div>
@@ -56,7 +56,7 @@ export function Settings() {
         <img src={logo} className="w-16 h-16" />
         <h1 className="tracking-wide font-medium text-[18px]">CleanTabs</h1>
         <p className="text-xs">
-          Version {browser.runtime.getManifest().version}
+          版本 {browser.runtime.getManifest().version}
         </p>
         <div className="mt-1 flex gap-2">
           <a
@@ -69,7 +69,7 @@ export function Settings() {
           </a>
           <a
             href="https://chromewebstore.google.com/detail/cleantabs/dhafadjcaeeklhlbbfeomgdgpkafdmig"
-            title="Chrome Web Store Link"
+            title="Chrome 网上应用店链接"
             target="_blank"
           >
             <ChromeStore className="w-6 h-6" />

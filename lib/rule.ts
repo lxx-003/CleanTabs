@@ -31,15 +31,15 @@ export interface ActionAttr {
 export const Actions: Record<Action, ActionAttr> = {
   nop: {
     action: 'nop',
-    display: 'NOP',
+    display: '忽略',
   },
   discard: {
     action: 'discard',
-    display: 'Discard',
+    display: '休眠',
   },
   close: {
     action: 'close',
-    display: 'Close',
+    display: '关闭',
   },
 }
 
@@ -85,7 +85,7 @@ export function ValidateRules(rules: Rule[]): ValidationResult {
     if (!res.ok) {
       return {
         ok: false,
-        reason: `Rule ${i + 1}: ${res.reason}`
+        reason: `第 ${i + 1} 条规则：${res.reason}`
       }
     }
   }
@@ -118,7 +118,7 @@ export function v_rule_pattern(r: string): ValidationResult {
   if (r === '') {
     return {
       ok: false,
-      reason: 'empty pattern'
+      reason: '匹配模式不能为空'
     }
   }
   try {
@@ -126,7 +126,7 @@ export function v_rule_pattern(r: string): ValidationResult {
     return { ok: true }
   } catch (error) {
     console.log(error)
-    return { ok: false, reason: 'invalid pattern' }
+    return { ok: false, reason: '匹配模式无效' }
   }
 }
 
@@ -134,7 +134,7 @@ function v_rule_inactive_minutes(m: number): ValidationResult {
   if (isNaN(m)) {
     return {
       ok: false,
-      reason: 'not a number'
+      reason: '不是有效数字'
     }
   }
 
@@ -142,7 +142,7 @@ function v_rule_inactive_minutes(m: number): ValidationResult {
   if (m < 0 || m > 30 * 24 * 60) {
     return {
       ok: false,
-      reason: 'must be [0, 30*24*60]'
+      reason: '必须在 0 到 30 天之间'
     }
   }
 
@@ -162,7 +162,8 @@ export function ParseRulesText(text: string): Rule[] {
       if (rule) rules.push(rule)
     }
   } catch (error) {
-    throw Error(`Line ${i + 1}: ${error}`)
+    const message = error instanceof Error ? error.message : `${error}`
+    throw Error(`第 ${i + 1} 行：${message}`)
   }
 
   return rules
@@ -178,7 +179,7 @@ function ParseRuleLine(line: string): Rule | null {
   const pattern = (tokens.at(0) ?? '')
   const patternRes = v_rule_pattern(pattern)
   if (!patternRes.ok) {
-    throw Error('bad regex')
+    throw Error('URL 匹配模式无效')
   }
 
 
@@ -186,32 +187,32 @@ function ParseRuleLine(line: string): Rule | null {
   const minStr = (tokens.at(1) ?? '').trim()
   const timeResult = parseTimeWithUnit(minStr)
   if (!timeResult) {
-    throw Error('bad inactive_minutes, should be a number or value with unit (e.g., 5m, 2h, 1d)')
+    throw Error('闲置时长应为数字，或带单位的值（如 5m、2h、1d）')
   }
   const min = toMinutes(timeResult.value, timeResult.unit)
   const minRes = v_rule_inactive_minutes(min)
   if (!minRes.ok) {
-    throw Error('bad inactive_minutes, should be in valid range')
+    throw Error('闲置时长不在有效范围内')
   }
 
 
   // 3. action
   const action = (tokens.at(2) ?? '').toLowerCase()
   if (!['nop', 'discard', 'close'].includes(action)) {
-    throw Error(`bad action, should be nop, discard, close`)
+    throw Error(`动作应为 nop、discard 或 close`)
   }
 
   // 4. to_stash
   const to_stash_str = (tokens.at(3) ?? '').toLowerCase()
   if (!['', 'true', 'false'].includes(to_stash_str)) {
-    throw Error(`should be true, false`)
+    throw Error(`应为 true 或 false`)
   }
 
 
   // 5. disabled
   const disabled_str = (tokens.at(4) ?? '').toLowerCase()
   if (!['', 'true', 'false'].includes(disabled_str)) {
-    throw Error(`should be true, false`)
+    throw Error(`应为 true 或 false`)
   }
 
   return {

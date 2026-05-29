@@ -26,7 +26,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { AppStateContext } from "./providers"
+import { AppStateContext } from "./Providers"
 import { cn } from "@/lib/utils"
 import { StashItem } from "@/lib/stash"
 import { SmallCheckbox } from "@/components/ui/checkbox"
@@ -81,7 +81,7 @@ export function Stash() {
             onCheckedChange={(value) =>
               table.toggleAllPageRowsSelected(!!value)
             }
-            aria-label="Select all"
+            aria-label="全选"
             className="rounded-[5px]"
           />
         ),
@@ -89,7 +89,7 @@ export function Stash() {
           <SmallCheckbox
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label="Select row"
+            aria-label="选择此行"
             className="rounded-[5px]"
           />
         ),
@@ -98,7 +98,7 @@ export function Stash() {
       },
       {
         id: "index",
-        header: "No.",
+        header: "序号",
         cell: ({ row }) => {
           return row.index + 1
         },
@@ -138,12 +138,12 @@ export function Stash() {
       },
       {
         accessorKey: "count",
-        header: "#Close",
+        header: "关闭次数",
         enableSorting: true,
       },
       {
         accessorKey: "last_ts",
-        header: "Last close",
+        header: "最近关闭",
         enableSorting: true,
         cell: ({ row }) => {
           const item = row.original
@@ -192,7 +192,7 @@ export function Stash() {
     <div className="">
       <div className="flex items-center justify-between gap-2 w-full mb-2">
         <DebouncedInput
-          placeholder="Search Stash"
+          placeholder="搜索暂存"
           className="h-8 w-64 rounded-[0px] focus-visible:ring-0 focus-visible:ring-offset-0 text-sm font-mono"
           value={(urlColumn?.getFilterValue() as string) ?? ""}
           onChange={(value) => {
@@ -204,14 +204,14 @@ export function Stash() {
             variant="destructive"
             size="sm"
             className="h-8"
-            title="Save Ruels"
+            title="删除所选暂存项"
             onClick={() =>
               deleteItems(
                 ...table.getSelectedRowModel().flatRows.map((r) => r.index)
               )
             }
           >
-            Delete
+            删除
           </Button>
         )}
       </div>
@@ -278,7 +278,7 @@ export function Stash() {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  Empty Stash
+                  暂存为空
                 </TableCell>
               </TableRow>
             )}
