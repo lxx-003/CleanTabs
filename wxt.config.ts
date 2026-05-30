@@ -11,7 +11,7 @@ export default defineConfig({
     permissions: ["storage", "tabs", "alarms", "tabGroups"],
     content_security_policy: {
       extension_pages:
-        "script-src 'self' 'wasm-unsafe-eval' http://localhost:3000; object-src 'self';",
+        "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';",
     },
     web_accessible_resources: [
       {
